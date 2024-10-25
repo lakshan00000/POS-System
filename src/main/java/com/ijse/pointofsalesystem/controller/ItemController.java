@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ijse.pointofsalesystem.dto.ItemReqDto;
+import com.ijse.pointofsalesystem.entity.Category;
 import com.ijse.pointofsalesystem.entity.Item;
+import com.ijse.pointofsalesystem.service.CategoryService;
 import com.ijse.pointofsalesystem.service.ItemService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +27,9 @@ public class ItemController {
     @Autowired
     private ItemService itemService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     @GetMapping("/Item")
     public ResponseEntity<List<Item>> getAllItems() {
         List<Item> itemsList = itemService.getItemsList();
@@ -32,7 +38,16 @@ public class ItemController {
     }
 
     @PostMapping("/Item")
-      public ResponseEntity<String> createItem(@RequestBody Item item) {
+      public ResponseEntity<String> createItem(@RequestBody ItemReqDto itemReqDto) {
+       
+        Item item = new Item();
+        item.setName(itemReqDto.getName());
+        item.setPrice(itemReqDto.getPrice());
+        item.setQty(itemReqDto.getQty());
+
+        Category category = categoryService.getCategoryById(itemReqDto.getCategoryId());
+        item.setCategory(category);
+
 
         if(item.getName() == null || item.getName() == "") {
            
