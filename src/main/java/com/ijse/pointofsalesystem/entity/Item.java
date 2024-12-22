@@ -27,9 +27,9 @@ public class Item {
     @Column (nullable = false)
     private String name;
     @Column (nullable = false)
-    private double price;
-    @Column (nullable = false)
-    private int qty;
+    private Double price;
+    @Column (nullable = true)
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

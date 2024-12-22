@@ -8,8 +8,8 @@ import lombok.Setter;
 public class ItemReqDto {
      
     private String name;
-    private double price;
-    private int qty;
+    private Double price;
+    private String description;
     private Long categoryId;
 
     

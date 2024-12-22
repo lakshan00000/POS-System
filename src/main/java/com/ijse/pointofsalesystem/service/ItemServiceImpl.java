@@ -39,14 +39,13 @@ public class ItemServiceImpl implements ItemService {
         } else {
             existingItem.setName(item.getName());
             existingItem.setPrice(item.getPrice());
-            existingItem.setQty(item.getQty());
+            existingItem.setDescription(item.getDescription());
             return itemRepository.save(existingItem);
         }
     }
 
-    @Override
-    public void deleteItem(Long id) {
-        itemRepository.deleteById(id);
+    public void deleteItem(Long itemId) {
+        itemRepository.deleteById(itemId);
     }
     
 }

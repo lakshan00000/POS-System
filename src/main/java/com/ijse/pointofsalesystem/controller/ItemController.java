@@ -40,36 +40,38 @@ public class ItemController {
     }
 
     @PostMapping("/Item")
-      public ResponseEntity<String> createItem(@RequestBody ItemReqDto itemReqDto) {
-       
-        Item item = new Item();
-        item.setName(itemReqDto.getName());
-        item.setPrice(itemReqDto.getPrice());
-        item.setQty(itemReqDto.getQty());
-
-        Category category = categoryService.getCategoryById(itemReqDto.getCategoryId());
-        item.setCategory(category);
-
-
-        if(item.getName() == null || item.getName() == "") {
-           
-            return ResponseEntity.status(422).body("Please enter a valid item name");
+    
+    public ResponseEntity<String> createItem(@RequestBody ItemReqDto itemReqDto) {
+        try {
+            Item item = new Item();
+            item.setName(itemReqDto.getName());
+            item.setPrice(itemReqDto.getPrice());
+            item.setDescription(itemReqDto.getDescription());
+    
+            Category category = categoryService.getCategoryById(itemReqDto.getCategoryId());
+            if (category == null) {
+                return ResponseEntity.status(422).body("Invalid category ID");
+            }
+            item.setCategory(category);
+    
+            if (item.getName() == null || item.getName().isEmpty()) {
+                return ResponseEntity.status(422).body("Please enter a valid item name");
+            }
+            if (item.getPrice() <= 0.0) {
+                return ResponseEntity.status(422).body("Enter a valid number as the price");
+            }
+            if (item.getDescription() == null || item.getDescription().isEmpty()) {
+                return ResponseEntity.status(422).body("Enter a valid description");
+            }
+    
+            itemService.createItem(item);
+            return ResponseEntity.status(201).body("Item added successfully");
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the error
+            return ResponseEntity.status(500).body("An unexpected error occurred: " + e.getMessage());
         }
-
-        if(item.getPrice() == 0.0) {
-            
-            return ResponseEntity.status(422).body("Enter a valid number as the price");
-        }
-        
-        if(item.getQty() == 0) {
-            
-            return ResponseEntity.status(422).body("Enter a valid number as the qty");
-        }
-
-        itemService.createItem(item);
-
-        return ResponseEntity.status(201).body("Item added successfully");
     }
+    
 
      @GetMapping("/Item/{itemId}") 
     public ResponseEntity<Item> getItemById(@PathVariable Long itemId) {
@@ -83,20 +85,48 @@ public class ItemController {
     }
 
     @PutMapping("/Item/{itemId}")
-    public ResponseEntity<Item> updateItem(@PathVariable Long itemId, @RequestBody Item item) {
-        Item updatedItem = itemService.updateItem(itemId, item);
-
-        if(updatedItem == null) {
-            return ResponseEntity.status(404).body(null);
-        } else {
-            return ResponseEntity.status(200).body(updatedItem);
+    public ResponseEntity<?> updateItem(@PathVariable Long itemId, @RequestBody ItemReqDto itemReqDto) {
+        Item existingItem = itemService.getItemById(itemId);
+        if (existingItem == null) {
+            return ResponseEntity.status(404).body("Item not found");
         }
+    
+        existingItem.setName(itemReqDto.getName());
+        existingItem.setPrice(itemReqDto.getPrice());
+        existingItem.setDescription(itemReqDto.getDescription());
+    
+        
+        if (itemReqDto.getCategoryId() != null) {
+            Category category = categoryService.getCategoryById(itemReqDto.getCategoryId());
+            if (category == null) {
+                return ResponseEntity.status(422).body("Invalid category ID");
+            }
+            existingItem.setCategory(category);
+        } else {
+            existingItem.setCategory(null); 
+        }
+    
+        
+        itemService.createItem(existingItem);
+        return ResponseEntity.status(200).body("Item updated successfully");
+    }
+    
+
+    @DeleteMapping("/Item/{itemId}")
+public ResponseEntity<String> deleteItem(@PathVariable Long itemId) {
+    Item existingItem = itemService.getItemById(itemId);
+    if (existingItem == null) {
+        return ResponseEntity.status(404).body("Item not found");
     }
 
-    @DeleteMapping("Item/{itemId}")
-    public void deleteItem(@PathVariable Long itemId) {
+    try {
         itemService.deleteItem(itemId);
+        return ResponseEntity.status(200).body("Item deleted successfully");
+    } catch (Exception e) {
+        return ResponseEntity.status(500).body("Error deleting item: " + e.getMessage());
     }
+}
+
     
     
 }

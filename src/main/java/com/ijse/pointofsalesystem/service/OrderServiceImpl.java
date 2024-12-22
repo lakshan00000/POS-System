@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ijse.pointofsalesystem.entity.Item;
 import com.ijse.pointofsalesystem.entity.Order;
 import com.ijse.pointofsalesystem.repository.OrderRepository;
 
@@ -25,4 +26,15 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
         
     }
+
+    public void deleteOrder(Long orderId) {
+        orderRepository.deleteById(orderId);
+    }
+
+     @Override
+    public Order getOrderById (Long id){
+        return orderRepository.findById(id).orElse(null);
+    }
+
+    
 }
